@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Tv2, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
 
@@ -71,14 +72,8 @@ export default function LoginPage() {
         <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-r from-transparent to-base pointer-events-none" />
 
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-accent rounded-[8px] flex items-center justify-center">
-            <Tv2 size={17} className="text-accent-fg" />
-          </div>
-          <div>
-            <p className="text-[10px] text-accent font-semibold tracking-widest leading-none">TENAX SISTEMAS</p>
-            <p className="text-[14px] font-bold text-fg leading-tight">INDOOR</p>
-          </div>
+        <div className="relative z-10">
+          <Image src="/logo-escuro.jpeg" alt="Tenax Sistemas" width={180} height={64} className="h-12 w-auto object-contain" priority />
         </div>
 
         {/* TV ilustrada + título */}
@@ -107,14 +102,8 @@ export default function LoginPage() {
       {/* Lado direito — formulário */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12">
         {/* Logo mobile */}
-        <div className="lg:hidden flex items-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-accent rounded-[8px] flex items-center justify-center">
-            <Tv2 size={17} className="text-accent-fg" />
-          </div>
-          <div>
-            <p className="text-[10px] text-accent font-semibold tracking-widest leading-none">TENAX SISTEMAS</p>
-            <p className="text-[14px] font-bold text-fg leading-tight">INDOOR</p>
-          </div>
+        <div className="lg:hidden mb-10">
+          <Image src="/logo-escuro.jpeg" alt="Tenax Sistemas" width={160} height={56} className="h-10 w-auto object-contain" priority />
         </div>
 
         <div className="w-full max-w-sm">

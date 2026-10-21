@@ -1,0 +1,1 @@
+ALTER TABLE anunciantes ADD COLUMN IF NOT EXISTS relatorio_token TEXT UNIQUE;

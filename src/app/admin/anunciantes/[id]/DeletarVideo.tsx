@@ -13,6 +13,7 @@ export function DeletarVideo({ id, anuncianteId }: { id: number; anuncianteId: n
       <button
         disabled={pending}
         onClick={() => setConfirming(true)}
+        aria-label="Remover vídeo"
         className="text-[12px] text-error hover:text-error/80 transition-colors disabled:opacity-40 disabled:cursor-wait flex-shrink-0"
       >
         Remover

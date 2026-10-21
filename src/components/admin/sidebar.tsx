@@ -4,9 +4,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
-  LayoutDashboard, Monitor, Users, FileText,
-  ChevronLeft, ChevronRight, Tv2, LogOut, Sun, Moon,
+  LayoutDashboard, Monitor, Users, FileText, Kanban, BarChart2,
+  ChevronLeft, ChevronRight, LogOut, Sun, Moon,
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/components/providers/theme-provider'
 import { StatusDot } from '@/components/ui/status-dot'
@@ -24,6 +25,8 @@ const NAV: NavItem[] = [
   { href: '/admin/pontos',     label: 'Telas',        icon: Monitor },
   { href: '/admin/anunciantes',label: 'Anunciantes',  icon: Users },
   { href: '/admin/contratos',  label: 'Contratos',    icon: FileText },
+  { href: '/admin/funil',       label: 'Funil',        icon: Kanban },
+  { href: '/admin/relatorios',  label: 'Relatórios',   icon: BarChart2 },
 ]
 
 interface SidebarProps {
@@ -62,17 +65,20 @@ export function Sidebar({ tvsOnline, tvsTotal }: SidebarProps) {
     >
       {/* Logo */}
       <div className={cn(
-        'flex items-center gap-2.5 border-b border-border flex-shrink-0',
-        collapsed ? 'justify-center px-0 py-4' : 'px-4 py-4',
+        'flex items-center justify-center border-b border-border flex-shrink-0',
+        collapsed ? 'px-3 py-3' : 'px-4 py-3',
       )}>
-        <div className="w-7 h-7 bg-accent rounded-[6px] flex items-center justify-center flex-shrink-0">
-          <Tv2 size={15} className="text-accent-fg" />
-        </div>
-        {!collapsed && (
-          <div>
-            <p className="text-[10px] text-accent font-semibold tracking-widest leading-none">TENAX</p>
-            <p className="text-[13px] font-bold text-fg leading-tight">INDOOR</p>
-          </div>
+        {collapsed ? (
+          <span className="text-[13px] font-black text-fg tracking-tighter leading-none select-none">TS</span>
+        ) : (
+          <Image
+            src={theme === 'dark' ? '/logo-escuro.jpeg' : '/logo-claro.jpeg'}
+            alt="Tenax Sistemas"
+            width={160}
+            height={56}
+            className="h-10 w-auto object-contain"
+            priority
+          />
         )}
       </div>
 
@@ -115,10 +121,20 @@ export function Sidebar({ tvsOnline, tvsTotal }: SidebarProps) {
           </div>
         )}
 
+        {/* Dica de atalho */}
+        {!collapsed && (
+          <div className="px-2.5 py-1.5">
+            <p className="text-[11px] text-subtle">
+              <kbd className="font-mono bg-elevated px-1 rounded text-[10px]">⌘K</kbd> navegação rápida
+            </p>
+          </div>
+        )}
+
         {/* Theme toggle */}
         <button
           onClick={toggle}
           title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+          aria-label={theme === 'dark' ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
           className={cn(
             'flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] w-full',
             'text-[13px] text-muted hover:text-fg hover:bg-elevated transition-colors duration-150',
@@ -133,6 +149,7 @@ export function Sidebar({ tvsOnline, tvsTotal }: SidebarProps) {
         <button
           onClick={toggleCollapse}
           title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          aria-label={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
           className={cn(
             'flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] w-full',
             'text-[13px] text-subtle hover:text-fg hover:bg-elevated transition-colors duration-150',
@@ -147,6 +164,7 @@ export function Sidebar({ tvsOnline, tvsTotal }: SidebarProps) {
         <button
           onClick={() => signOut({ callbackUrl: '/admin/login' })}
           title="Sair"
+          aria-label="Sair da conta"
           className={cn(
             'flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] w-full',
             'text-[13px] text-subtle hover:text-error hover:bg-error/10 transition-colors duration-150',

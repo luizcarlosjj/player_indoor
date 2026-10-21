@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { VideoUpload } from './VideoUpload'
 import { AcoesContrato } from './AcoesContrato'
 import { DeletarVideo } from './DeletarVideo'
+import { DuracaoRapida } from './DuracaoRapida'
+import { RelatorioLink } from './RelatorioLink'
 import { formatBRL, formatDate } from '@/lib/utils'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -60,6 +62,18 @@ export default async function AnuncianteDetalhePage({
           </Field>
           <Field label="Telefone">
             <input name="telefone" type="tel" defaultValue={a.telefone ?? ''} />
+          </Field>
+          <Field label="Segmento">
+            <input name="segmento" defaultValue={a.segmento ?? ''} placeholder="Ex: Restaurante, Academia..." />
+          </Field>
+          <Field label="Instagram">
+            <input name="instagram" defaultValue={a.instagram ?? ''} placeholder="@perfil" />
+          </Field>
+          <Field label="WhatsApp">
+            <input name="whatsapp" type="tel" defaultValue={a.whatsapp ?? ''} placeholder="(00) 90000-0000" />
+          </Field>
+          <Field label="Cupom">
+            <input name="cupom" defaultValue={a.cupom ?? ''} placeholder="Ex: TV DUDU" />
           </Field>
           <Field label="Observações">
             <textarea name="observacoes" rows={3} defaultValue={a.observacoes ?? ''} />
@@ -121,7 +135,7 @@ export default async function AnuncianteDetalhePage({
             + Novo contrato
           </summary>
           <div className="px-4 pb-4 pt-2 border-t border-border">
-            <form action={criarContratoComId} className="flex flex-col gap-3">
+            <form action={criarContratoComId} data-contrato-form="" className="flex flex-col gap-3">
               <div className="grid grid-cols-3 gap-3">
                 <Field label="Valor/mês (R$)">
                   <input name="valor_mensal" type="number" defaultValue="120" min="0" step="0.01" />
@@ -133,6 +147,7 @@ export default async function AnuncianteDetalhePage({
                   <input name="data_fim" type="date" />
                 </Field>
               </div>
+              <DuracaoRapida dataInicioName="data_inicio" dataFimName="data_fim" />
               <div>
                 <Button type="submit" size="sm">Criar contrato</Button>
               </div>
@@ -142,7 +157,7 @@ export default async function AnuncianteDetalhePage({
       </section>
 
       {/* Vídeos */}
-      <section>
+      <section className="mb-8">
         <h2 className="text-[11px] font-medium text-subtle uppercase tracking-widest mb-4">Vídeos</h2>
 
         {videos.length > 0 && (
@@ -166,6 +181,12 @@ export default async function AnuncianteDetalhePage({
         )}
 
         <VideoUpload anuncianteId={a.id} />
+      </section>
+
+      {/* Relatório */}
+      <section>
+        <h2 className="text-[11px] font-medium text-subtle uppercase tracking-widest mb-4">Relatório público</h2>
+        <RelatorioLink anuncianteId={a.id} token={a.relatorio_token ?? null} />
       </section>
     </div>
   )

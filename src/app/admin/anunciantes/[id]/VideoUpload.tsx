@@ -2,52 +2,89 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, AlertCircle } from 'lucide-react'
+import { Upload, AlertCircle, X, CheckCircle, Loader2 } from 'lucide-react'
 import { Field } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
+
+interface ArquivoFila {
+  file: File
+  titulo: string
+  status: 'aguardando' | 'enviando' | 'concluido' | 'erro'
+  progresso: number
+  erro?: string
+}
 
 export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [progresso, setProgresso] = useState<number | null>(null)
-  const [erro, setErro] = useState('')
-  const [titulo, setTitulo] = useState('')
-  const [arquivoSelecionado, setArquivoSelecionado] = useState(false)
+  const [fila, setFila] = useState<ArquivoFila[]>([])
+  const [enviando, setEnviando] = useState(false)
 
-  async function handleArquivo(e: React.ChangeEvent<HTMLInputElement>) {
-    const arquivo = e.target.files?.[0]
-    if (!arquivo) return
-    setErro('')
-    setTitulo(arquivo.name.replace(/\.[^/.]+$/, ''))
-    setArquivoSelecionado(true)
+  function handleArquivos(e: React.ChangeEvent<HTMLInputElement>) {
+    const arquivos = Array.from(e.target.files ?? [])
+    if (arquivos.length === 0) return
+
+    const novos: ArquivoFila[] = arquivos.map((file) => ({
+      file,
+      titulo: file.name.replace(/\.[^/.]+$/, ''),
+      status: 'aguardando',
+      progresso: 0,
+    }))
+
+    setFila((prev) => [...prev, ...novos])
+    if (inputRef.current) inputRef.current.value = ''
   }
 
-  async function handleUpload() {
-    const arquivo = inputRef.current?.files?.[0]
-    if (!arquivo || !titulo.trim()) { setErro('Informe o título.'); return }
+  function removerDaFila(idx: number) {
+    setFila((prev) => prev.filter((_, i) => i !== idx))
+  }
 
-    setErro('')
-    setProgresso(0)
+  function atualizarTitulo(idx: number, titulo: string) {
+    setFila((prev) => prev.map((item, i) => (i === idx ? { ...item, titulo } : item)))
+  }
+
+  function atualizarProgresso(idx: number, progresso: number) {
+    setFila((prev) => prev.map((item, i) => (i === idx ? { ...item, progresso } : item)))
+  }
+
+  function atualizarStatus(
+    idx: number,
+    status: ArquivoFila['status'],
+    erro?: string,
+  ) {
+    setFila((prev) =>
+      prev.map((item, i) => (i === idx ? { ...item, status, erro } : item)),
+    )
+  }
+
+  async function processarArquivo(item: ArquivoFila, idx: number): Promise<void> {
+    if (!item.titulo.trim()) {
+      atualizarStatus(idx, 'erro', 'Informe o título.')
+      return
+    }
+
+    atualizarStatus(idx, 'enviando')
+    atualizarProgresso(idx, 0)
 
     try {
-      const meta = await lerMetadadosVideo(arquivo)
+      const meta = await lerMetadadosVideo(item.file)
 
       const res = await fetch('/api/admin/videos/upload-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: arquivo.name, tipo: arquivo.type }),
+        body: JSON.stringify({ nome: item.file.name, tipo: item.file.type }),
       })
       if (!res.ok) throw new Error('Falha ao obter URL de upload.')
       const { url, key } = await res.json()
 
-      await uploadComProgresso(arquivo, url, setProgresso)
+      await uploadComProgresso(item.file, url, (pct) => atualizarProgresso(idx, pct))
 
       await fetch('/api/admin/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           anunciante_id: anuncianteId,
-          titulo: titulo.trim(),
+          titulo: item.titulo.trim(),
           r2_key: key,
           duracao_segundos: meta.duracao,
           largura: meta.largura,
@@ -55,73 +92,130 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
         }),
       })
 
-      setProgresso(null)
-      setTitulo('')
-      setArquivoSelecionado(false)
-      if (inputRef.current) inputRef.current.value = ''
-      router.refresh()
+      atualizarStatus(idx, 'concluido')
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro no upload.')
-      setProgresso(null)
+      atualizarStatus(idx, 'erro', e instanceof Error ? e.message : 'Erro no upload.')
     }
   }
+
+  async function enviarTodos() {
+    const pendentes = fila
+      .map((item, idx) => ({ item, idx }))
+      .filter(({ item }) => item.status === 'aguardando' || item.status === 'erro')
+
+    if (pendentes.length === 0) return
+
+    setEnviando(true)
+
+    for (const { item, idx } of pendentes) {
+      await processarArquivo(item, idx)
+    }
+
+    setEnviando(false)
+    router.refresh()
+  }
+
+  const temPendentes = fila.some(
+    (i) => i.status === 'aguardando' || i.status === 'erro',
+  )
 
   return (
     <div className="bg-surface border border-border rounded-[10px] p-4 flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Upload size={14} className="text-muted" />
-        <p className="text-[13px] font-medium text-muted">Enviar vídeo</p>
+        <p className="text-[13px] font-medium text-muted">Enviar vídeos</p>
       </div>
 
       <input
         ref={inputRef}
         type="file"
         accept="video/*"
-        onChange={handleArquivo}
+        multiple
+        onChange={handleArquivos}
         className="text-[13px] text-muted file:mr-3 file:py-1 file:px-3 file:rounded-[6px] file:border-0 file:bg-elevated file:text-[12px] file:text-muted file:cursor-pointer hover:file:bg-border"
       />
 
-      {arquivoSelecionado && (
-        <Field label="Título">
-          <input
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            placeholder="Nome do vídeo"
-          />
-        </Field>
-      )}
-
-      {progresso !== null && (
-        <div>
-          <div className="h-1.5 bg-elevated rounded-full overflow-hidden">
+      {fila.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {fila.map((item, idx) => (
             <div
-              className="h-full bg-online rounded-full transition-all duration-200"
-              style={{ width: `${progresso}%` }}
-            />
-          </div>
-          <p className="text-[11px] text-subtle mt-1">{progresso}%</p>
+              key={idx}
+              className="bg-elevated border border-border rounded-[8px] p-3 flex flex-col gap-2"
+            >
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-subtle truncate mb-1">{item.file.name}</p>
+                  <Field label="Título">
+                    <input
+                      value={item.titulo}
+                      onChange={(e) => atualizarTitulo(idx, e.target.value)}
+                      placeholder="Nome do vídeo"
+                      disabled={item.status === 'enviando' || item.status === 'concluido'}
+                    />
+                  </Field>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
+                  <StatusIcone status={item.status} />
+                  {item.status !== 'enviando' && item.status !== 'concluido' && (
+                    <button
+                      onClick={() => removerDaFila(idx)}
+                      className="text-subtle hover:text-fg transition-colors"
+                      aria-label="Remover da fila"
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {item.status === 'enviando' && (
+                <div>
+                  <div className="h-1.5 bg-surface rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-online rounded-full transition-all duration-200"
+                      style={{ width: `${item.progresso}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-subtle mt-1">{item.progresso}%</p>
+                </div>
+              )}
+
+              {item.status === 'erro' && item.erro && (
+                <div className="flex items-center gap-1.5">
+                  <AlertCircle size={12} className="text-error flex-shrink-0" />
+                  <p className="text-[11px] text-error">{item.erro}</p>
+                </div>
+              )}
+
+              {item.status === 'concluido' && (
+                <p className="text-[11px] text-online">Enviado com sucesso.</p>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {erro && (
-        <div className="flex items-center gap-2">
-          <AlertCircle size={13} className="text-error flex-shrink-0" />
-          <p className="text-[12px] text-error">{erro}</p>
+      {fila.length > 0 && (
+        <div>
+          <Button
+            size="sm"
+            onClick={enviarTodos}
+            disabled={enviando || !temPendentes}
+            loading={enviando}
+          >
+            {enviando ? 'Enviando...' : 'Enviar todos'}
+          </Button>
         </div>
       )}
-
-      <div>
-        <Button
-          size="sm"
-          onClick={handleUpload}
-          disabled={progresso !== null}
-          loading={progresso !== null}
-        >
-          {progresso !== null ? 'Enviando...' : 'Enviar vídeo'}
-        </Button>
-      </div>
     </div>
   )
+}
+
+function StatusIcone({ status }: { status: ArquivoFila['status'] }) {
+  if (status === 'enviando') return <Loader2 size={13} className="text-accent animate-spin" />
+  if (status === 'concluido') return <CheckCircle size={13} className="text-online" />
+  if (status === 'erro') return <AlertCircle size={13} className="text-error" />
+  return null
 }
 
 function lerMetadadosVideo(arquivo: File): Promise<{ duracao: number; largura: number; altura: number }> {

@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { Sidebar } from '@/components/admin/sidebar'
 import { MobileNav } from '@/components/admin/mobile-nav'
+import { CommandPalette } from '@/components/admin/CommandPalette'
 import { SignOutButton } from './SignOutButton'
 import sql from '@/lib/db'
 
@@ -49,6 +50,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       {/* Nav mobile */}
       <MobileNav />
+
+      {/* Paleta de comandos (Cmd+K / Ctrl+K) */}
+      <CommandPalette />
     </div>
   )
 }

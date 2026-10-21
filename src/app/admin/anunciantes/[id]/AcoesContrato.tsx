@@ -16,6 +16,7 @@ export function AcoesContrato({
         <button
           disabled={pending}
           onClick={() => start(() => atualizarStatusContrato(id, 'suspenso', anuncianteId))}
+          aria-label="Suspender contrato"
           className="text-[12px] text-muted hover:text-fg transition-colors disabled:opacity-40 disabled:cursor-wait"
         >
           Suspender
@@ -25,6 +26,7 @@ export function AcoesContrato({
         <button
           disabled={pending}
           onClick={() => start(() => atualizarStatusContrato(id, 'ativo', anuncianteId))}
+          aria-label="Reativar contrato"
           className="text-[12px] text-online hover:text-online/80 transition-colors disabled:opacity-40 disabled:cursor-wait"
         >
           Reativar
@@ -34,6 +36,7 @@ export function AcoesContrato({
         <button
           disabled={pending}
           onClick={() => start(() => atualizarStatusContrato(id, 'encerrado', anuncianteId))}
+          aria-label="Encerrar contrato"
           className="text-[12px] text-error hover:text-error/80 transition-colors disabled:opacity-40 disabled:cursor-wait"
         >
           Encerrar

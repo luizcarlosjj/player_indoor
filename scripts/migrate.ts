@@ -23,8 +23,8 @@ async function main() {
 
     const statements = conteudo
       .split(';')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0 && !s.startsWith('--'))
+      .map((s) => s.replace(/--[^\n]*/g, '').trim())
+      .filter((s) => s.length > 0)
 
     console.log(`\n→ ${arquivo} (${statements.length} statements)`)
 

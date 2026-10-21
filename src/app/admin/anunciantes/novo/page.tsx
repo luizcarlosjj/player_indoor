@@ -31,6 +31,22 @@ export default function NovoAnunciantePage() {
           <input name="telefone" type="tel" placeholder="(00) 00000-0000" />
         </Field>
 
+        <Field label="Segmento">
+          <input name="segmento" placeholder="Ex: Restaurante, Academia..." />
+        </Field>
+
+        <Field label="Instagram">
+          <input name="instagram" placeholder="@perfil" />
+        </Field>
+
+        <Field label="WhatsApp">
+          <input name="whatsapp" type="tel" placeholder="(00) 90000-0000" />
+        </Field>
+
+        <Field label="Cupom">
+          <input name="cupom" placeholder="Ex: TV DUDU" />
+        </Field>
+
         <Field label="Observações">
           <textarea name="observacoes" rows={3} placeholder="Informações adicionais..." />
         </Field>

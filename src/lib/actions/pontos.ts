@@ -45,3 +45,17 @@ export async function togglePonto(id: number, ativo: boolean) {
   await sql`UPDATE pontos SET ativo = ${ativo} WHERE id = ${id}`
   revalidatePath('/admin/pontos')
 }
+
+export async function salvarHorario(
+  pontoId: number,
+  horario: Record<string, { inicio: string; fim: string }> | null,
+) {
+  const val = horario ? JSON.stringify(horario) : null
+  await sql`UPDATE pontos SET horario = ${val}::jsonb WHERE id = ${pontoId}`
+  revalidatePath(`/admin/pontos/${pontoId}`)
+}
+
+export async function forcarAtualizacao(pontoId: number) {
+  await sql`UPDATE pontos SET programacao_versao = COALESCE(programacao_versao, 0) + 1 WHERE id = ${pontoId}`
+  revalidatePath(`/admin/pontos/${pontoId}`)
+}

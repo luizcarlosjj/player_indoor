@@ -1,12 +1,11 @@
 import sql from '@/lib/db'
 import Link from 'next/link'
-import { ExternalLink, Monitor } from 'lucide-react'
+import { Monitor } from 'lucide-react'
 import { PageHeader } from '@/components/ui/page-header'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { StatusDot } from '@/components/ui/status-dot'
 import { EmptyState } from '@/components/ui/empty-state'
-import { TogglePonto } from './TogglePonto'
 import { tempoRelativo } from '@/lib/utils'
 
 export const metadata = { title: 'Telas' }
@@ -36,54 +35,52 @@ export default async function PontosPage() {
           action={<Link href="/admin/pontos/novo"><Button size="sm">Novo ponto</Button></Link>}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {pontos.map((p) => {
             const online = p.ultimo_heartbeat
               ? Date.now() - new Date(p.ultimo_heartbeat).getTime() < 10 * 60 * 1000
               : false
-            const vistoHa = p.ultimo_heartbeat ? tempoRelativo(p.ultimo_heartbeat) : 'nunca'
+            const vistoHa = p.ultimo_heartbeat ? tempoRelativo(p.ultimo_heartbeat) : null
 
             return (
               <div
                 key={p.id}
-                className="flex items-center justify-between gap-3 bg-surface border border-border rounded-[12px] px-4 py-3 hover:border-border-subtle transition-colors"
+                className="bg-surface border border-border rounded-[12px] p-4 flex flex-col gap-3"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2.5 mb-0.5">
-                    <StatusDot
-                      status={online ? 'online' : 'offline'}
-                      pulse={online}
-                    />
-                    <span className="text-[14px] font-medium text-fg truncate">{p.nome}</span>
-                    {!p.ativo && (
-                      <Badge variant="muted">inativo</Badge>
-                    )}
-                  </div>
-                  <p className="text-[12px] text-subtle pl-[18px]">
-                    {online ? 'Online agora' : `Visto ${vistoHa}`}
-                    {p.endereco ? ` · ${p.endereco}` : ''}
-                  </p>
+                {/* Header */}
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-fg flex-1 truncate">{p.nome}</span>
+                  {!p.ativo && <Badge variant="muted">inativo</Badge>}
                 </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <a
-                    href={`/player/${p.token_player}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-[12px] text-info hover:text-info/80 transition-colors"
-                    title="Abrir player"
-                  >
-                    <ExternalLink size={13} />
-                    <span className="hidden sm:inline">Player</span>
-                  </a>
-                  <Link
-                    href={`/admin/pontos/${p.id}`}
-                    className="text-[12px] text-muted hover:text-fg transition-colors"
-                  >
-                    Editar
-                  </Link>
-                  <TogglePonto id={p.id} ativo={p.ativo} />
+                {/* Status row */}
+                <div className="flex items-center gap-2">
+                  <StatusDot status={online ? 'online' : 'offline'} pulse={online} />
+                  <span className="text-[13px] text-muted">
+                    {online
+                      ? 'no ar'
+                      : vistoHa
+                        ? `fora do ar ${vistoHa}`
+                        : 'fora do ar'}
+                  </span>
                 </div>
+
+                {/* Body */}
+                <div className="flex items-center gap-2 min-h-[20px]">
+                  {p.endereco && (
+                    <span className="text-subtle text-[12px] flex-1 truncate">{p.endereco}</span>
+                  )}
+                  {p.orientacao && (
+                    <Badge variant="default">{p.orientacao}</Badge>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <Link href={`/admin/pontos/${p.id}`} className="mt-auto">
+                  <Button variant="secondary" size="sm" className="w-full">
+                    Ver detalhes
+                  </Button>
+                </Link>
               </div>
             )
           })}
