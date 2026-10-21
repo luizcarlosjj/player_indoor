@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Head -30)",
+      "PowerShell($env:PATH = $env:PATH + \";C:\\\\Program Files\\\\Git\\\\cmd\"; Set-Location \"c:\\\\Users\\\\Auvo\\\\Documents\\\\GitHub\\\\player_indoor\"; git status --short 2>&1 | Select-Object -First 30)",
+      "PowerShell(Get-Command git -ErrorAction SilentlyContinue)",
+      "Read(//c/Users/Auvo/AppData/Local/Programs/**)",
+      "PowerShell(Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Set-Location \"c:\\\\Users\\\\Auvo\\\\Documents\\\\GitHub\\\\player_indoor\"; $job = Start-Job -ScriptBlock { Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Set-Location \"c:\\\\Users\\\\Auvo\\\\Documents\\\\GitHub\\\\player_indoor\"; & \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" run dev 2>&1 }; Start-Sleep -Seconds 10; Receive-Job $job | Select-Object -Last 15)"
+    ]
+  }
+}
