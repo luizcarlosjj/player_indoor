@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
-  LayoutDashboard, Monitor, Users, FileText, Kanban, BarChart2,
+  LayoutDashboard, Monitor, Users, FileText, TrendingUp, BarChart2, Tv,
   ChevronLeft, ChevronRight, LogOut, Sun, Moon,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -24,8 +24,9 @@ const NAV: NavItem[] = [
   { href: '/admin',            label: 'Início',       icon: LayoutDashboard, exact: true },
   { href: '/admin/pontos',     label: 'Telas',        icon: Monitor },
   { href: '/admin/anunciantes',label: 'Anunciantes',  icon: Users },
-  { href: '/admin/contratos',  label: 'Contratos',    icon: FileText },
-  { href: '/admin/funil',       label: 'Funil',        icon: Kanban },
+  { href: '/admin/contratos',   label: 'Contratos',    icon: FileText },
+  { href: '/admin/financeiro',  label: 'Financeiro',   icon: TrendingUp },
+  { href: '/admin/playlists',   label: 'Playlists',    icon: Tv },
   { href: '/admin/relatorios',  label: 'Relatórios',   icon: BarChart2 },
 ]
 

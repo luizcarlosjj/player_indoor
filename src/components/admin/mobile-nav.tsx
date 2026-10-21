@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Monitor, Users, Kanban, BarChart2 } from 'lucide-react'
+import { LayoutDashboard, Monitor, Users, TrendingUp, Tv } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/admin',             label: 'Início',      icon: LayoutDashboard, exact: true },
   { href: '/admin/pontos',      label: 'Telas',       icon: Monitor },
   { href: '/admin/anunciantes', label: 'Anunciantes', icon: Users },
-  { href: '/admin/funil',       label: 'Funil',       icon: Kanban },
-  { href: '/admin/relatorios',  label: 'Relatórios',  icon: BarChart2 },
+  { href: '/admin/financeiro',  label: 'Financeiro',  icon: TrendingUp },
+  { href: '/admin/playlists',   label: 'Playlists',   icon: Tv },
 ]
 
 export function MobileNav() {

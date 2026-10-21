@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 
 const OPCOES = [
+  { label: '1 mês', meses: 1 },
   { label: '3 meses', meses: 3 },
   { label: '6 meses', meses: 6 },
   { label: '12 meses', meses: 12 },

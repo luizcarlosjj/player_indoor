@@ -112,6 +112,7 @@ export default async function AnuncianteDetalhePage({
                     <Badge variant={vencido ? 'muted' : c.status === 'ativo' ? 'online' : 'default'}>
                       {c.status}
                     </Badge>
+                    {c.fidelidade && <Badge variant="default">fidelidade</Badge>}
                     <span className="text-[14px] font-medium text-fg">
                       {formatBRL(c.valor_mensal)}/mês
                     </span>
@@ -152,6 +153,12 @@ export default async function AnuncianteDetalhePage({
                 </Field>
               </div>
               <DuracaoRapida dataInicioName="data_inicio" dataFimName="data_fim" />
+              <Field label="Fidelidade">
+                <select name="fidelidade">
+                  <option value="false">Sem fidelidade</option>
+                  <option value="true">Com fidelidade (cancela com multa)</option>
+                </select>
+              </Field>
               <div>
                 <Button type="submit" size="sm">Criar contrato</Button>
               </div>

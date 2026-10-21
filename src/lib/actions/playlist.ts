@@ -45,3 +45,8 @@ export async function reordenarPlaylist(pontoId: number, itens: { id: number; or
   await incrementarVersao(pontoId)
   revalidatePath(`/admin/pontos/${pontoId}`)
 }
+
+export async function atualizarDuracaoVideo(videoId: number, duracaoSegundos: number) {
+  await sql`UPDATE videos SET duracao_segundos = ${duracaoSegundos} WHERE id = ${videoId}`
+  revalidatePath('/admin/playlists')
+}

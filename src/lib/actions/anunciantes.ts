@@ -49,13 +49,14 @@ export async function atualizarAnunciante(id: number, fd: FormData) {
 
 export async function criarContrato(anuncianteId: number, fd: FormData) {
   await sql`
-    INSERT INTO contratos (anunciante_id, valor_mensal, data_inicio, data_fim, status)
+    INSERT INTO contratos (anunciante_id, valor_mensal, data_inicio, data_fim, status, fidelidade)
     VALUES (
       ${anuncianteId},
       ${Number(fd.get('valor_mensal') || 120)},
       ${String(fd.get('data_inicio'))},
       ${String(fd.get('data_fim'))},
-      'ativo'
+      'ativo',
+      ${fd.get('fidelidade') === 'true'}
     )
   `
   revalidatePath(`/admin/anunciantes/${anuncianteId}`)
@@ -66,26 +67,14 @@ export async function atualizarStatusContrato(id: number, status: string, anunci
   revalidatePath(`/admin/anunciantes/${anuncianteId}`)
 }
 
-export async function renovarContrato(id: number) {
-  const [original] = await sql`
-    SELECT * FROM contratos WHERE id = ${id}
-  `.catch(() => [null])
+export async function renovarContrato(id: number, meses: number = 6) {
+  const [original] = await sql`SELECT * FROM contratos WHERE id = ${id}`.catch(() => [null])
   if (!original) return
-
   const hoje = new Date()
   const dataInicio = hoje.toISOString().slice(0, 10)
-  const dataFim = new Date(hoje.setMonth(hoje.getMonth() + 6)).toISOString().slice(0, 10)
-
-  await sql`
-    INSERT INTO contratos (anunciante_id, valor_mensal, data_inicio, data_fim, status)
-    VALUES (
-      ${original.anunciante_id},
-      ${original.valor_mensal},
-      ${dataInicio},
-      ${dataFim},
-      'ativo'
-    )
-  `
+  const dataFim = new Date(hoje.setMonth(hoje.getMonth() + meses)).toISOString().slice(0, 10)
+  await sql`INSERT INTO contratos (anunciante_id, valor_mensal, data_inicio, data_fim, status, fidelidade)
+    VALUES (${original.anunciante_id}, ${original.valor_mensal}, ${dataInicio}, ${dataFim}, 'ativo', ${original.fidelidade ?? false})`
   revalidatePath('/admin/contratos')
   revalidatePath(`/admin/anunciantes/${original.anunciante_id}`)
 }

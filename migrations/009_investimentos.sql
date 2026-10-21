@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS investimentos (
+  id SERIAL PRIMARY KEY,
+  descricao TEXT NOT NULL,
+  valor NUMERIC(10,2) NOT NULL,
+  data DATE NOT NULL DEFAULT CURRENT_DATE,
+  categoria TEXT NOT NULL DEFAULT 'equipamento',
+  criado_em TIMESTAMPTZ DEFAULT NOW()
+);
