@@ -91,8 +91,20 @@ export async function renovarContrato(id: number) {
 }
 
 export async function deletarVideo(id: number, anuncianteId: number) {
-  // Remove da playlist também
   await sql`DELETE FROM playlist_itens WHERE video_id = ${id}`
   await sql`DELETE FROM videos WHERE id = ${id}`
   revalidatePath(`/admin/anunciantes/${anuncianteId}`)
+}
+
+export async function deletarAnunciante(id: number) {
+  const videos = await sql`SELECT id FROM videos WHERE anunciante_id = ${id}`
+  for (const v of videos) {
+    await sql`DELETE FROM playlist_itens WHERE video_id = ${v.id}`
+  }
+  await sql`DELETE FROM videos WHERE anunciante_id = ${id}`
+  await sql`DELETE FROM contratos WHERE anunciante_id = ${id}`
+  await sql`DELETE FROM leads WHERE anunciante_id = ${id}`
+  await sql`DELETE FROM anunciantes WHERE id = ${id}`
+  revalidatePath('/admin/anunciantes')
+  redirect('/admin/anunciantes')
 }

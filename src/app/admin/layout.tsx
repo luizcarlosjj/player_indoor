@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import Image from 'next/image'
 import { Sidebar } from '@/components/admin/sidebar'
 import { MobileNav } from '@/components/admin/mobile-nav'
 import { CommandPalette } from '@/components/admin/CommandPalette'
@@ -33,12 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header mobile com logout */}
         <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-surface sticky top-0 z-30">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-accent rounded-[5px] flex items-center justify-center">
-              <span className="text-accent-fg text-[9px] font-bold">T</span>
-            </div>
-            <span className="text-[14px] font-semibold text-fg">Tenax Indoor</span>
-          </div>
+          <Image src="/logo-escuro.jpeg" alt="Tenax Sistemas" width={120} height={40} className="h-7 w-auto object-contain" />
           <SignOutButton />
         </header>
 

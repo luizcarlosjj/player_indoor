@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { VideoUpload } from './VideoUpload'
 import { AcoesContrato } from './AcoesContrato'
 import { DeletarVideo } from './DeletarVideo'
+import { DeletarAnunciante } from './DeletarAnunciante'
 import { DuracaoRapida } from './DuracaoRapida'
 import { RelatorioLink } from './RelatorioLink'
 import { formatBRL, formatDate } from '@/lib/utils'
@@ -41,13 +42,16 @@ export default async function AnuncianteDetalhePage({
 
   return (
     <div className="max-w-[640px]">
-      <div className="flex items-center gap-2 mb-6">
-        <Link href="/admin/anunciantes" className="flex items-center gap-1 text-[13px] text-muted hover:text-fg transition-colors">
-          <ChevronLeft size={14} />
-          Anunciantes
-        </Link>
-        <span className="text-border">/</span>
-        <h1 className="text-[16px] font-semibold text-fg">{a.nome}</h1>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2 min-w-0">
+          <Link href="/admin/anunciantes" className="flex items-center gap-1 text-[13px] text-muted hover:text-fg transition-colors flex-shrink-0">
+            <ChevronLeft size={14} />
+            Anunciantes
+          </Link>
+          <span className="text-border">/</span>
+          <h1 className="text-[16px] font-semibold text-fg truncate">{a.nome}</h1>
+        </div>
+        <DeletarAnunciante id={a.id} nome={a.nome} />
       </div>
 
       {/* Dados */}

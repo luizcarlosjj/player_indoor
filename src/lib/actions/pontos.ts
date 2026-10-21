@@ -59,3 +59,12 @@ export async function forcarAtualizacao(pontoId: number) {
   await sql`UPDATE pontos SET programacao_versao = COALESCE(programacao_versao, 0) + 1 WHERE id = ${pontoId}`
   revalidatePath(`/admin/pontos/${pontoId}`)
 }
+
+export async function deletarPonto(id: number) {
+  await sql`DELETE FROM playlist_itens WHERE ponto_id = ${id}`
+  await sql`DELETE FROM heartbeats WHERE ponto_id = ${id}`
+  await sql`DELETE FROM exibicoes WHERE ponto_id = ${id}`
+  await sql`DELETE FROM pontos WHERE id = ${id}`
+  revalidatePath('/admin/pontos')
+  redirect('/admin/pontos')
+}

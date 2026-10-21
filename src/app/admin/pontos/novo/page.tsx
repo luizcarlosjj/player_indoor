@@ -12,7 +12,7 @@ export default function NovoPontoPage() {
       <div className="flex items-center gap-2 mb-6">
         <Link href="/admin/pontos" className="flex items-center gap-1 text-[13px] text-muted hover:text-fg transition-colors">
           <ChevronLeft size={14} />
-          Pontos
+          Telas
         </Link>
         <span className="text-border">/</span>
         <h1 className="text-[16px] font-semibold text-fg">Novo ponto</h1>

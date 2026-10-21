@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import { PageHeader } from '@/components/ui/page-header'
 import { PontosTabs } from './PontosTabs'
+import { DeletarPonto } from './DeletarPonto'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -52,16 +53,19 @@ export default async function EditarPontoPage({
 
   return (
     <div className="max-w-[720px]">
-      <div className="flex items-center gap-2 mb-6">
-        <Link
-          href="/admin/pontos"
-          className="flex items-center gap-1 text-[13px] text-muted hover:text-fg transition-colors"
-        >
-          <ChevronLeft size={14} />
-          Telas
-        </Link>
-        <span className="text-border">/</span>
-        <h1 className="text-[16px] font-semibold text-fg">{ponto.nome}</h1>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2 min-w-0">
+          <Link
+            href="/admin/pontos"
+            className="flex items-center gap-1 text-[13px] text-muted hover:text-fg transition-colors flex-shrink-0"
+          >
+            <ChevronLeft size={14} />
+            Telas
+          </Link>
+          <span className="text-border">/</span>
+          <h1 className="text-[16px] font-semibold text-fg truncate">{ponto.nome}</h1>
+        </div>
+        <DeletarPonto id={ponto.id} nome={ponto.nome} />
       </div>
 
       <PontosTabs
