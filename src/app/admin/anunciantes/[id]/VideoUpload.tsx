@@ -6,11 +6,18 @@ import { Upload, AlertCircle, X, CheckCircle, Loader2 } from 'lucide-react'
 import { Field } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
 
+interface Meta {
+  duracao: number
+  largura: number
+  altura: number
+}
+
 interface ArquivoFila {
   file: File
   titulo: string
   status: 'aguardando' | 'enviando' | 'concluido' | 'erro'
   progresso: number
+  meta?: Meta
   erro?: string
 }
 
@@ -20,7 +27,7 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
   const [fila, setFila] = useState<ArquivoFila[]>([])
   const [enviando, setEnviando] = useState(false)
 
-  function handleArquivos(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleArquivos(e: React.ChangeEvent<HTMLInputElement>) {
     const arquivos = Array.from(e.target.files ?? [])
     if (arquivos.length === 0) return
 
@@ -33,6 +40,16 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
 
     setFila((prev) => [...prev, ...novos])
     if (inputRef.current) inputRef.current.value = ''
+
+    const baseIdx = fila.length
+    await Promise.all(
+      arquivos.map(async (file, i) => {
+        const meta = await lerMetadadosVideo(file)
+        setFila((prev) =>
+          prev.map((item, idx) => idx === baseIdx + i ? { ...item, meta } : item)
+        )
+      })
+    )
   }
 
   function removerDaFila(idx: number) {
@@ -67,7 +84,7 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
     atualizarProgresso(idx, 0)
 
     try {
-      const meta = await lerMetadadosVideo(item.file)
+      const meta = item.meta ?? await lerMetadadosVideo(item.file)
 
       const res = await fetch('/api/admin/videos/upload-url', {
         method: 'POST',
@@ -144,7 +161,13 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
             >
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] text-subtle truncate mb-1">{item.file.name}</p>
+                  <p className="text-[11px] text-subtle truncate">{item.file.name}</p>
+                  <p className="text-[11px] text-muted mb-1">
+                    {item.meta
+                      ? `${item.meta.largura}×${item.meta.altura} · ${item.meta.duracao}s · ${(item.file.size / 1024 / 1024).toFixed(1)} MB`
+                      : `${(item.file.size / 1024 / 1024).toFixed(1)} MB`
+                    }
+                  </p>
                   <Field label="Título">
                     <input
                       value={item.titulo}

@@ -96,6 +96,7 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
   const [playlistVazia, setPlaylistVazia] = useState(false)
   const [activeSlot, setActiveSlot] = useState<0 | 1>(0)        // which video el is on top
   const [opacidades, setOpacidades] = useState<[number, number]>([1, 0])
+  const [audioAtivado, setAudioAtivado] = useState(false)
   const [debugLines, setDebugLines] = useState<string[]>([])
 
   // Refs (no re-render on change)
@@ -208,8 +209,9 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
     const incomingEl = videoRefs.current[incoming]
     if (incomingEl) {
       incomingEl.currentTime = 0
-      await incomingEl.play().catch(() => {
-        if (incomingEl) { incomingEl.muted = true; incomingEl.play().catch(() => {}) }
+      incomingEl.muted = false
+      await incomingEl.play().catch(async () => {
+        if (incomingEl) { incomingEl.muted = true; await incomingEl.play().catch(() => {}) }
       })
     }
 
@@ -259,8 +261,9 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
         await loadIntoSlot(0, primeiro)
         const el = videoRefs.current[0]
         if (el) {
-          await el.play().catch(() => {
-            if (el) { el.muted = true; el.play().catch(() => {}) }
+          el.muted = false
+          await el.play().catch(async () => {
+            if (el) { el.muted = true; await el.play().catch(() => {}) }
           })
         }
         setOpacidades([1, 0])
@@ -354,6 +357,18 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ── Ativar áudio (requer interação do usuário) ─────────────────────────
+  const ativarAudio = useCallback(() => {
+    videoRefs.current.forEach((el) => {
+      if (el) {
+        el.muted = false
+        el.play().catch(() => {})
+      }
+    })
+    setAudioAtivado(true)
+    dbg('áudio ativado')
+  }, [dbg])
+
   // ── Render ──────────────────────────────────────────────────────────────
 
   // Empty playlist — "Anuncie aqui" screen
@@ -397,7 +412,6 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
         {/* Slot 0 */}
         <video
           ref={(el) => { videoRefs.current[0] = el }}
-          muted
           playsInline
           preload="auto"
           onEnded={activeSlot === 0 ? avancarVideo : undefined}
@@ -412,7 +426,6 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
         {/* Slot 1 */}
         <video
           ref={(el) => { videoRefs.current[1] = el }}
-          muted
           playsInline
           preload="auto"
           onEnded={activeSlot === 1 ? avancarVideo : undefined}
@@ -425,6 +438,35 @@ export default function PlayerPage({ params }: { params: Promise<{ token: string
           }}
         />
       </div>
+
+      {/* Overlay de áudio — some após primeiro toque */}
+      {!audioAtivado && (
+        <div
+          onClick={ativarAudio}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 10,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            paddingBottom: 32, cursor: 'pointer',
+          }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(0,0,0,0.6)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 999,
+            padding: '8px 18px',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, fontFamily: 'system-ui' }}>
+              Toque para ativar áudio
+            </span>
+          </div>
+        </div>
+      )}
+
       {isDebugRef.current && <DebugOverlay lines={debugLines} />}
     </div>
   )
