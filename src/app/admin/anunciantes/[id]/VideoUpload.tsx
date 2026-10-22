@@ -75,9 +75,10 @@ export function VideoUpload({ anuncianteId }: { anuncianteId: number }) {
         body: JSON.stringify({ nome: item.file.name, tipo: item.file.type }),
       })
       if (!res.ok) throw new Error('Falha ao obter URL de upload.')
-      const { url, key } = await res.json()
+      const { key } = await res.json()
 
-      await uploadComProgresso(item.file, url, (pct) => atualizarProgresso(idx, pct))
+      const proxyUrl = `/api/admin/videos/upload?key=${encodeURIComponent(key)}&tipo=${encodeURIComponent(item.file.type)}`
+      await uploadComProgresso(item.file, proxyUrl, (pct) => atualizarProgresso(idx, pct))
 
       await fetch('/api/admin/videos', {
         method: 'POST',
